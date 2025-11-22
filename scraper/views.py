@@ -8,6 +8,8 @@ from django.db.models import Q, Count
 from geopy.distance import geodesic
 import pgeocode
 from collections import Counter
+from datetime import datetime, timedelta
+from decouple import config
 from .models import JobListing, EmailSubscriber, ScrapingLog
 from .serializers import (
     JobListingSerializer, 
@@ -278,7 +280,6 @@ def subscribe(request):
     
     return render(request, 'subscribe.html')
 
-from datetime import datetime, timedelta
 
 def cleanup_old_jobs():
     """Auto-close jobs older than 60 days"""
@@ -292,97 +293,30 @@ def cleanup_old_jobs():
 
 
 def trigger_scrape(request):
-    """Trigger manual scraping run using USAJobs API"""
+    """Trigger manual scraping run using USAJobs API - OPTIMIZED for free tier"""
     if request.method == 'POST':
         try:
             from .usajobs_scraper import USAJobsScraper
             
-            # Initialize scraper with API key
+            # Get credentials from environment variables
+            api_key = config('USAJOBS_API_KEY')
+            user_email = config('USAJOBS_EMAIL')
+            
+            # Initialize scraper
             scraper = USAJobsScraper(
-                api_key="3T5mKByJh7G2xfH+agJ+yj4ez6yTCgjJ0kZ8wVHrPds=",
-                user_email="sawyer.mustopoh@gmail.com"
+                api_key=api_key,
+                user_email=user_email
             )
             
-            # ULTIMATE comprehensive public service keywords
+            # REDUCED keywords for free tier (only most important)
             stats = scraper.scrape_multiple_keywords([
-                # Core Public Service
                 "public policy",
-                "public administration",
-                "public management",
-                "public service",
-                "public affairs",
-                "government affairs",
-                
-                # Legislative & Congressional
-                "legislative",
-                "congressional",
-                "policy analyst",
-                "policy advisor",
-                
-                # Program Management
                 "program analyst",
-                "program manager",
-                "program coordinator",
-                "management analyst",
-                "budget analyst",
-                "grants management",
-                
-                # Public Health
-                "public health",
-                "health policy",
-                "epidemiology",
-                "community health",
-                
-                # Social Services
-                "social services",
-                "social work",
-                "human services",
-                "community development",
-                "housing",
-                
-                # Education
-                "education policy",
-                "education program",
-                
-                # Environment & Energy
-                "environmental policy",
-                "climate",
-                "sustainability",
-                "energy policy",
-                
-                # Economic Development
-                "economic development",
-                "urban planning",
-                "city planning",
-                
-                # International Affairs
-                "international development",
-                "foreign service",
-                "diplomacy",
-                "international relations",
-                
-                # Justice & Law
-                "criminal justice",
-                "legal",
-                "regulatory",
-                
-                # Communications & Outreach
-                "public information",
-                "communications",
-                "community outreach",
-                "public relations",
-                
-                # Research & Evaluation
-                "research analyst",
-                "program evaluation",
-                "data analyst",
-                
-                # Special Programs
-                "presidential management fellowship",
-                "pathways",
-                "recent graduate program",
+                "policy analyst",
+                "legislative",
+                "fellowship",
                 "internship",
-                "fellowship"
+                "presidential management fellowship"
             ])
             
             # Auto-cleanup old jobs after scraping

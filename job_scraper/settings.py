@@ -132,7 +132,6 @@ REST_FRAMEWORK = {
 }
 ```
 
-Here's your updated `requirements.txt`:
 ```
 Django==4.2.7
 djangorestframework==3.14.0

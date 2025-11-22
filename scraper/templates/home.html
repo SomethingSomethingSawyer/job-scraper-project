@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Job Scraper{% endblock %}
+
+{% block content %}
+<style>
+    .scraper-heart {
+        font-size: 3em;
+        margin-bottom: 15px;
+        display: inline-block;
+        transition: transform 0.3s;
+    }
+    
+    .scraper-heart.pulsing {
+        animation: heartPulse 0.8s ease-in-out infinite;
+    }
+    
+    @keyframes heartPulse {
+        0%, 100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 10px rgba(33, 150, 243, 0.5));
+        }
+        50% {
+            transform: scale(1.4);
+            filter: drop-shadow(0 0 25px rgba(33, 150, 243, 1));
+        }
+    }
+</style>
+
+<div style="text-align: center; padding: 40px 0;">
+    <h2 style="font-size: 2.5em; margin-bottom: 20px; color: #333;">Welcome to Public Service Jobs!</h2>
+    <p style="font-size: 1.2em; color: #666; margin-bottom: 40px;">
+        Find internships, jobs, and fellowships near you or across the country
+    </p>
+
+    <!-- Search Mode Selection -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 900px; margin: 0 auto 50px;">
+        <!-- LOCAL SEARCH -->
+        <div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 30px; border-radius: 15px; border: 3px solid #2196F3;">
+            <div style="font-size: 3em; margin-bottom: 15px;">📍</div>
+            <h3 style="color: #2196F3; margin-bottom: 15px; font-size: 1.5em;">Search Near You</h3>
+            <p style="color: #666; margin-bottom: 25px;">Find jobs within a specific distance from your location</p>
+            
+            <form method="GET" action="{% url 'job_list' %}">
+                <input type="hidden" name="mode" value="local">
+                
+                <div style="margin-bottom: 15px;">
+                    <input type="text" name="zip_code" placeholder="Your Zip Code (e.g., 40503)" required
+                           style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <select name="max_distance" required
+                            style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                        <option value="">Select Distance</option>
+                        <option value="10">Within 10 miles</option>
+                        <option value="25">Within 25 miles</option>
+                        <option value="50">Within 50 miles</option>
+                        <option value="100">Within 100 miles</option>
+                        <option value="250">Within 250 miles</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">
+                    Find Local Jobs
+                </button>
+            </form>
+        </div>
+
+        <!-- NATIONWIDE SEARCH -->
+        <div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 30px; border-radius: 15px; border: 3px solid #1976D2;">
+            <div style="font-size: 3em; margin-bottom: 15px;">🇺🇸</div>
+            <h3 style="color: #1976D2; margin-bottom: 15px; font-size: 1.5em;">Search Nationwide</h3>
+            <p style="color: #666; margin-bottom: 80px;">Browse all jobs across the United States</p>
+            
+            <form method="GET" action="{% url 'job_list' %}">
+                <input type="hidden" name="mode" value="nationwide">
+                <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);">
+                    Browse All Jobs
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Additional Options -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px;">
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
+            <div style="font-size: 3em; margin-bottom: 15px;">💼</div>
+            <h3 style="color: #2196F3; margin-bottom: 10px;">{{ total_jobs }} Open Positions</h3>
+            <p style="color: #666; margin-bottom: 20px;">Active internships, jobs, and fellowships</p>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
+            <div style="font-size: 3em; margin-bottom: 15px;">📧</div>
+            <h3 style="color: #2196F3; margin-bottom: 10px;">Get Email Alerts</h3>
+            <p style="color: #666; margin-bottom: 20px;">Subscribe to receive new job notifications</p>
+            <a href="{% url 'subscribe' %}" class="btn">Subscribe Now</a>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
+            <div class="scraper-heart" id="scraperHeart">💙</div>
+            <h3 style="color: #2196F3; margin-bottom: 10px;">Update Jobs Database</h3>
+            <p style="color: #666; margin-bottom: 20px;">Manually scrape for new job postings</p>
+            <form method="POST" action="{% url 'trigger_scrape' %}" id="scraperForm">
+                {% csrf_token %}
+                <button type="submit" class="btn">Run Scraper</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); border-radius: 15px;">
+        <h3 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">Recent Scraping Activity</h3>
+        {% if recent_logs %}
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+            {% for log in recent_logs %}
+                <div style="background: white; padding: 20px; border-radius: 10px; text-align: left; border-left: 4px solid {% if log.status == 'completed' %}#28a745{% elif log.status == 'failed' %}#dc3545{% else %}#ffc107{% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <strong style="color: #333;">{{ log.started_at|date:"M d, Y H:i" }}</strong>
+                            <span style="color: #666; margin-left: 15px;">
+                                Found: {{ log.jobs_found }} | Added: {{ log.jobs_added }} | Updated: {{ log.jobs_updated }}
+                            </span>
+                        </div>
+                        <span style="padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: 600;
+                            {% if log.status == 'completed' %}background: #d4edda; color: #155724;
+                            {% elif log.status == 'failed' %}background: #f8d7da; color: #721c24;
+                            {% else %}background: #fff3cd; color: #856404;{% endif %}">
+                            {{ log.status|title }}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: #666;">No scraping activity yet. Click "Run Scraper" to get started!</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('scraperForm').addEventListener('submit', function() {
+        document.getElementById('scraperHeart').classList.add('pulsing');
+    });
+</script>
+{% endblock %}

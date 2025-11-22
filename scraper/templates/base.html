@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Job Scraper{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SLIDESHOW BACKGROUND */
+        .slideshow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 0.15;
+        }
+
+        .slide:nth-child(1) {
+            background-image: url('https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200');
+        }
+
+        .slide:nth-child(2) {
+            background-image: url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200');
+        }
+
+        .slide:nth-child(3) {
+            background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200');
+        }
+
+        .slide:nth-child(4) {
+            background-image: url('https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200');
+        }
+
+        .slide:nth-child(5) {
+            background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200');
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        }
+
+        /* STATUS INDICATOR */
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .heart {
+            font-size: 1.5em;
+            color: #fff;
+        }
+
+        .heart.pulsing {
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+            }
+            50% {
+                transform: scale(1.3);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1));
+            }
+        }
+
+        .status-text {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: white;
+            display: none;
+        }
+
+        .status-text.active {
+            display: block;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav a {
+            color: #2196F3;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background: #2196F3;
+            color: white;
+        }
+
+        .nav a.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 2px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .status-indicator {
+                top: 10px;
+                right: 15px;
+                padding: 8px 15px;
+            }
+
+            .heart {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Slideshow Background -->
+            <div class="slideshow">
+                <div class="slide active"></div>
+                <div class="slide"></div>
+                <div class="slide"></div>
+                <div class="slide"></div>
+                <div class="slide"></div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div class="status-indicator">
+                <div class="heart" id="heartIcon">💙</div>
+                <div class="status-text" id="statusText">Scraping...</div>
+            </div>
+
+            <div class="header-content">
+                <h1>Public Service Job Finder</h1>
+                <p>Discover Opportunities in Government, Policy, and Nonprofit Sectors</p>
+            </div>
+        </div>
+
+        <div class="nav">
+            <a href="{% url 'home' %}" {% if request.path == '/' %}class="active"{% endif %}>Home</a>
+            <a href="{% url 'job_list' %}" {% if 'jobs' in request.path %}class="active"{% endif %}>Browse Jobs</a>
+            <a href="{% url 'subscribe' %}" {% if 'subscribe' in request.path %}class="active"{% endif %}>Subscribe</a>
+            <a href="/admin/" target="_blank">Admin Panel</a>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+
+        <div class="footer">
+            <p>Powered by USAJobs API | Connecting talent with public service opportunities</p>
+        </div>
+    </div>
+
+    <script>
+        // Slideshow functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function showNextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        
+        setInterval(showNextSlide, 5000);
+
+        // Heart pulse on scraper button click
+        document.addEventListener('DOMContentLoaded', function() {
+            const scraperForms = document.querySelectorAll('form[action*="trigger-scrape"]');
+            const heart = document.getElementById('heartIcon');
+            const statusText = document.getElementById('statusText');
+            
+            scraperForms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    heart.classList.add('pulsing');
+                    statusText.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

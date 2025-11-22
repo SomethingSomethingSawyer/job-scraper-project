@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - Job Scraper{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'job_list' %}" style="color: #2196F3; text-decoration: none; font-weight: 600;">
+        ? Back to Job Listings
+    </a>
+</div>
+
+<div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 40px; border-radius: 15px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; flex-wrap: wrap;">
+        <div>
+            <h1 style="color: #333; font-size: 2.5em; margin-bottom: 10px;">{{ job.title }}</h1>
+            <p style="font-size: 1.3em; color: #2196F3; font-weight: 600;">{{ job.organization }}</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            <span style="padding: 8px 20px; background: #2196F3; color: white; border-radius: 25px; font-weight: 600;">
+                {{ job.job_type|title }}
+            </span>
+            {% if job.closed %}
+            <span style="padding: 8px 20px; background: #dc3545; color: white; border-radius: 25px; font-weight: 600;">
+                Closed
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+        <div>
+            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Locations:</strong>
+            <p style="color: #666;">{{ job.locations|join:", " }}</p>
+        </div>
+        <div>
+            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Work Format:</strong>
+            <p style="color: #666;">{{ job.work_format|join:", "|title }}</p>
+        </div>
+        <div>
+            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Sectors:</strong>
+            <p style="color: #666;">{{ job.sectors|join:", " }}</p>
+        </div>
+        <div>
+            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Posted:</strong>
+            <p style="color: #666;">{{ job.date_scraped|date:"M d, Y" }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Skills -->
+{% if job.technical_skills %}
+<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Technical Skills Required</h2>
+    {% for category, skills in job.technical_skills.items %}
+    <div style="margin-bottom: 20px;">
+        <h3 style="color: #2196F3; margin-bottom: 10px; font-size: 1.2em;">{{ category }}</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            {% for skill in skills %}
+            <span style="padding: 8px 16px; background: #f8f9fa; color: #495057; border-radius: 20px; border: 2px solid #e9ecef; font-weight: 600;">
+                {{ skill }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Soft Skills -->
+{% if job.soft_skills %}
+<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Soft Skills</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        {% for skill in job.soft_skills %}
+        <span style="padding: 8px 16px; background: #f8f9fa; color: #495057; border-radius: 20px; border: 2px solid #e9ecef; font-weight: 600;">
+            {{ skill }}
+        </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Additional Info -->
+<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Additional Information</h2>
+    <div style="display: grid; gap: 15px;">
+        {% if job.company_link %}
+        <div>
+            <strong style="color: #333;">Company Website:</strong>
+            <a href="http://{{ job.company_link }}" target="_blank" style="color: #2196F3; margin-left: 10px;">
+                {{ job.company_link }}
+            </a>
+        </div>
+        {% endif %}
+        <div>
+            <strong style="color: #333;">Source:</strong>
+            <span style="color: #666; margin-left: 10px;">{{ job.source_domain }}</span>
+        </div>
+        {% if job.posting_date %}
+        <div>
+            <strong style="color: #333;">Original Posting Date:</strong>
+            <span style="color: #666; margin-left: 10px;">{{ job.posting_date }}</span>
+        </div>
+        {% endif %}
+        {% if job.sponsorship_required %}
+        <div>
+            <strong style="color: #333;">Sponsorship:</strong>
+            <span style="color: #666; margin-left: 10px;">Required</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Apply Button -->
+<div style="text-align: center; padding: 40px;">
+    <a href="{{ job.apply_link }}" target="_blank" class="btn" style="font-size: 1.2em; padding: 15px 50px;">
+        Apply Now on {{ job.source_domain }} ?
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Jobs - Job Scraper{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 2em; margin-bottom: 20px; color: #333;">
+    {% if search_mode == 'local' %}
+        ?? Jobs Near You
+    {% else %}
+        ?? Nationwide Job Search
+    {% endif %}
+</h2>
+
+<!-- Mode Toggle -->
+<div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+    <a href="{% url 'home' %}" class="btn btn-secondary">? Change Search Mode</a>
+    {% if search_mode == 'local' %}
+        <span style="color: #2196F3; font-weight: 600; padding: 10px;">
+            ?? Showing jobs within {{ request.GET.max_distance }} miles of {{ request.GET.zip_code }}
+        </span>
+    {% endif %}
+</div>
+
+<!-- Statistics Dashboard -->
+{% if stats %}
+<div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+    <h3 style="color: #333; margin-bottom: 25px; font-size: 1.8em;">?? Job Market Statistics</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2.5em; font-weight: bold; color: #2196F3;">{{ stats.total_jobs }}</div>
+            <div style="color: #666; margin-top: 5px;">Total Positions</div>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2.5em; font-weight: bold; color: #1976D2;">{{ stats.avg_skills_per_job }}</div>
+            <div style="color: #666; margin-top: 5px;">Avg Skills per Job</div>
+        </div>
+        
+        {% if stats.top_sectors %}
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2.5em; font-weight: bold; color: #28a745;">{{ stats.top_sectors.0.1 }}</div>
+            <div style="color: #666; margin-top: 5px;">Jobs in {{ stats.top_sectors.0.0 }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Top Skills -->
+    {% if stats.top_technical_skills %}
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #333; margin-bottom: 15px;">?? Most In-Demand Technical Skills</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            {% for skill, count in stats.top_technical_skills %}
+            <div style="background: white; padding: 10px 20px; border-radius: 20px; border: 2px solid #2196F3;">
+                <strong style="color: #2196F3;">{{ skill }}</strong>
+                <span style="color: #666; margin-left: 8px;">{{ count }} jobs</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Top Sectors -->
+    {% if stats.top_sectors %}
+    <div>
+        <h4 style="color: #333; margin-bottom: 15px;">?? Top Sectors</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            {% for sector, count in stats.top_sectors %}
+            <div style="background: white; padding: 10px 20px; border-radius: 20px; border: 2px solid #1976D2;">
+                <strong style="color: #1976D2;">{{ sector }}</strong>
+                <span style="color: #666; margin-left: 8px;">{{ count }} jobs</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Filters (Nationwide mode only) -->
+{% if search_mode == 'nationwide' %}
+<div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+    <h3 style="margin-bottom: 20px; color: #2196F3;">Filter Results</h3>
+    <form method="GET" action="{% url 'job_list' %}">
+        <input type="hidden" name="mode" value="nationwide">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Search:</label>
+                <input type="text" name="search" value="{{ request.GET.search }}" 
+                       placeholder="Job title..."
+                       style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Job Type:</label>
+                <select name="job_type" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                    <option value="">All Types</option>
+                    <option value="internship" {% if request.GET.job_type == 'internship' %}selected{% endif %}>Internship</option>
+                    <option value="job" {% if request.GET.job_type == 'job' %}selected{% endif %}>Full-Time Job</option>
+                    <option value="fellowship" {% if request.GET.job_type == 'fellowship' %}selected{% endif %}>Fellowship</option>
+                </select>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Work Format:</label>
+                <select name="work_format" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                    <option value="">All Formats</option>
+                    <option value="remote" {% if request.GET.work_format == 'remote' %}selected{% endif %}>Remote</option>
+                    <option value="hybrid" {% if request.GET.work_format == 'hybrid' %}selected{% endif %}>Hybrid</option>
+                    <option value="onsite" {% if request.GET.work_format == 'onsite' %}selected{% endif %}>On-Site</option>
+                </select>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Sector:</label>
+                <select name="sector" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                    <option value="">All Sectors</option>
+                    <option value="Technology" {% if request.GET.sector == 'Technology' %}selected{% endif %}>Technology</option>
+                    <option value="Government" {% if request.GET.sector == 'Government' %}selected{% endif %}>Government</option>
+                    <option value="Healthcare" {% if request.GET.sector == 'Healthcare' %}selected{% endif %}>Healthcare</option>
+                    <option value="Finance" {% if request.GET.sector == 'Finance' %}selected{% endif %}>Finance</option>
+                    <option value="Education" {% if request.GET.sector == 'Education' %}selected{% endif %}>Education</option>
+                    <option value="Science" {% if request.GET.sector == 'Science' %}selected{% endif %}>Science</option>
+                </select>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">State:</label>
+                <input type="text" name="state" value="{{ request.GET.state }}" 
+                       placeholder="e.g., KY, CA, NY..."
+                       style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn">Apply Filters</button>
+            <a href="?mode=nationwide" class="btn btn-secondary">Clear Filters</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<!-- Job Listings -->
+<p style="color: #666; margin-bottom: 20px;">Showing {{ jobs.paginator.count }} job{{ jobs.paginator.count|pluralize }}</p>
+
+{% if jobs %}
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+    {% for job in jobs %}
+        <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; border-left: 5px solid #2196F3;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="color: #333; margin-bottom: 8px;">
+                        <a href="{% url 'job_detail' job.id %}" style="color: #2196F3; text-decoration: none;">
+                            {{ job.title }}
+                        </a>
+                    </h3>
+                    <p style="color: #666; font-size: 1.1em; margin-bottom: 5px;">
+                        <strong>{{ job.organization }}</strong>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% if search_mode == 'local' and job.distance %}
+                    <span style="padding: 5px 15px; background: #28a745; color: white; border-radius: 20px; font-size: 0.9em; font-weight: 600;">
+                        {{ job.distance }} mi away
+                    </span>
+                    {% endif %}
+                    <span style="padding: 5px 15px; background: #2196F3; color: white; border-radius: 20px; font-size: 0.9em; font-weight: 600;">
+                        {{ job.job_type|title }}
+                    </span>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; color: #666;">
+                <span>?? {{ job.locations|join:", " }}</span>
+                <span>?? {{ job.work_format|join:", "|title }}</span>
+                <span>?? {{ job.sectors|join:", " }}</span>
+            </div>
+
+            {% if job.technical_skills %}
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #333;">Skills:</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                {% for category, skills in job.technical_skills.items %}
+                    {% for skill in skills|slice:":5" %}
+                    <span style="padding: 4px 12px; background: #e9ecef; color: #495057; border-radius: 15px; font-size: 0.85em;">
+                        {{ skill }}
+                    </span>
+                    {% endfor %}
+                {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <a href="{{ job.apply_link }}" target="_blank" class="btn" style="font-size: 0.9em; padding: 8px 20px;">
+                    Apply Now ?
+                </a>
+                <a href="{% url 'job_detail' job.id %}" style="color: #2196F3; text-decoration: none; font-weight: 600;">
+                    View Details
+                </a>
+                <span style="color: #999; font-size: 0.9em; margin-left: auto;">
+                    Posted: {{ job.date_scraped|date:"M d, Y" }}
+                </span>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if jobs.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 40px; flex-wrap: wrap;">
+        {% if jobs.has_previous %}
+            <a href="?page={{ jobs.previous_page_number }}&{{ request.GET.urlencode }}" class="btn btn-secondary">? Previous</a>
+        {% endif %}
+        
+        <span style="padding: 12px 20px; background: #f8f9fa; border-radius: 8px;">
+            Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}
+        </span>
+        
+        {% if jobs.has_next %}
+            <a href="?page={{ jobs.next_page_number }}&{{ request.GET.urlencode }}" class="btn btn-secondary">Next ?</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+{% else %}
+    <div style="text-align: center; padding: 60px; background: #f8f9fa; border-radius: 15px;">
+        <p style="font-size: 1.5em; color: #666; margin-bottom: 20px;">?? No jobs found</p>
+        <a href="{% url 'home' %}" class="btn">Try Different Search</a>
+    </div>
+{% endif %}
+{% endblock %}

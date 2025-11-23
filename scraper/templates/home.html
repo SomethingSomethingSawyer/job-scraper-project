@@ -1,57 +1,569 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - Job Scraper{% endblock %}
+{% block title %}Home - Policy Pulse{% endblock %}
 
 {% block content %}
 <style>
-    .scraper-heart {
-        font-size: 3em;
-        margin-bottom: 15px;
-        display: inline-block;
-        transition: transform 0.3s;
+    :root {
+        --uk-blue: #0033A0;
+        --uk-blue-dark: #002264;
+        --uk-blue-light: #0051D5;
+        --pulse-blue: #00A9E0;
+        --accent: #009BDB;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-900: #0f172a;
     }
-    
-    .scraper-heart.pulsing {
-        animation: heartPulse 0.8s ease-in-out infinite;
+
+    /* Hero with animated pulse background */
+    .hero-section {
+        text-align: center;
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, var(--uk-blue-dark) 0%, var(--uk-blue) 50%, var(--uk-blue-light) 100%);
+        color: white;
+        border-radius: 24px;
+        margin-bottom: 50px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 51, 160, 0.4);
     }
-    
-    @keyframes heartPulse {
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(0, 169, 224, 0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: heroKitPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes heroPulse {
         0%, 100% {
-            transform: scale(1);
-            filter: drop-shadow(0 0 10px rgba(33, 150, 243, 0.5));
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.3;
         }
         50% {
-            transform: scale(1.4);
-            filter: drop-shadow(0 0 25px rgba(33, 150, 243, 1));
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0.1;
+        }
+    }
+
+    .hero-section h2 {
+        font-size: 3.5em;
+        margin-bottom: 15px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-tagline {
+        font-size: 1.4em;
+        opacity: 0.95;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    /* Pulse effect for "Pulse" in title */
+    .pulse-text {
+        display: inline-block;
+        animation: textPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes textPulse {
+        0%, 100% {
+            transform: scale(1);
+            color: white;
+        }
+        50% {
+            transform: scale(1.05);
+            color: var(--pulse-blue);
+        }
+    }
+
+    /* Search cards with pulse on hover */
+    .search-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        max-width: 1100px;
+        margin: 0 auto 50px;
+    }
+
+    .search-card {
+        background: white;
+        padding: 45px;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0, 51, 160, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid var(--gray-200);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .search-card::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(circle, rgba(0, 51, 160, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .search-card:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+
+    .search-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 51, 160, 0.15);
+        border-color: var(--uk-blue);
+    }
+
+    .search-card-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 25px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .icon-pin, .icon-flag {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--uk-blue) 0%, var(--uk-blue-light) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(0, 51, 160, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .search-card:hover .icon-pin,
+    .search-card:hover .icon-flag {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 12px 30px rgba(0, 51, 160, 0.35);
+    }
+
+    /* SVG Icons */
+    .icon-pin svg, .icon-flag svg {
+        width: 40px;
+        height: 40px;
+        fill: white;
+    }
+
+    .search-card h3 {
+        color: var(--uk-blue-dark);
+        margin-bottom: 15px;
+        font-size: 1.8em;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+
+    .search-card p {
+        color: var(--gray-600);
+        margin-bottom: 25px;
+        line-height: 1.7;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: var(--gray-50);
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--uk-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, var(--uk-blue) 0%, var(--uk-blue-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.15em;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 51, 160, 0.3);
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 51, 160, 0.4);
+    }
+
+    .btn-secondary {
+        width: 100%;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, var(--uk-blue-dark) 0%, var(--uk-blue) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.15em;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 34, 100, 0.3);
+        text-decoration: none;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 34, 100, 0.4);
+        color: white;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0, 51, 160, 0.08);
+        transition: all 0.3s ease;
+        border-left: 6px solid var(--uk-blue);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 51, 160, 0.03) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 51, 160, 0.15);
+    }
+
+    .stat-icon-container {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card h3 {
+        color: var(--uk-blue-dark);
+        margin-bottom: 12px;
+        font-size: 1.5em;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card p {
+        color: var(--gray-600);
+        margin-bottom: 20px;
+        line-height: 1.7;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Pulse heart animation - actual SVG pulse */
+    .pulse-heart-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pulse-ring {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border: 3px solid var(--uk-blue);
+        border-radius: 50%;
+        opacity: 0;
+    }
+
+    .pulse-heart-container.pulsing .pulse-ring:nth-child(1) {
+        animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+
+    .pulse-heart-container.pulsing .pulse-ring:nth-child(2) {
+        animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        animation-delay: 0.5s;
+    }
+
+    .pulse-heart-container.pulsing .pulse-ring:nth-child(3) {
+        animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        animation-delay: 1s;
+    }
+
+    @keyframes pulseRing {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        50% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: scale(1.8);
+            opacity: 0;
+        }
+    }
+
+    .pulse-core {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--uk-blue) 0%, var(--pulse-blue) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 51, 160, 0.3);
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .pulse-heart-container.pulsing .pulse-core {
+        animation: corebeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes corePulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(0, 51, 160, 0.3);
+        }
+        50% {
+            transform: scale(1.15);
+            box-shadow: 0 6px 25px rgba(0, 169, 224, 0.5);
+        }
+    }
+
+    .pulse-core svg {
+        width: 28px;
+        height: 28px;
+        fill: white;
+    }
+
+    /* Activity section */
+    .activity-section {
+        margin-top: 60px;
+        padding: 45px;
+        background: linear-gradient(135deg, rgba(0, 51, 160, 0.03) 0%, rgba(0, 51, 160, 0.06) 100%);
+        border-radius: 24px;
+        border: 2px solid var(--gray-200);
+    }
+
+    .activity-section h3 {
+        color: var(--gray-900);
+        margin-bottom: 30px;
+        font-size: 2em;
+        font-weight: 700;
+    }
+
+    .activity-log {
+        background: white;
+        padding: 24px 28px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        text-align: left;
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-log:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transform: translateX(8px);
+    }
+
+    .activity-log.completed { 
+        border-left-color: var(--success);
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.02) 0%, white 10%);
+    }
+    
+    .activity-log.failed { 
+        border-left-color: var(--danger);
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.02) 0%, white 10%);
+    }
+    
+    .activity-log.running { 
+        border-left-color: var(--warning);
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0.02) 0%, white 10%);
+    }
+
+    .status-badge {
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 700;
+        text-transform: capitalize;
+        letter-spacing: 0.3px;
+    }
+
+    .status-badge.completed {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+
+    .status-badge.failed {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+
+    .status-badge.running {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.85; transform: scale(1.03); }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+        color: var(--gray-600);
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
+        opacity: 0.3;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+    }
+
+    .empty-icon svg {
+        width: 100%;
+        height: 100%;
+        fill: var(--uk-blue);
+    }
+
+    @media (max-width: 768px) {
+        .search-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-section h2 {
+            font-size: 2.5em;
+        }
+
+        .hero-tagline {
+            font-size: 1.1em;
         }
     }
 </style>
 
-<div style="text-align: center; padding: 40px 0;">
-    <h2 style="font-size: 2.5em; margin-bottom: 20px; color: #333;">Welcome to Public Service Jobs!</h2>
-    <p style="font-size: 1.2em; color: #666; margin-bottom: 40px;">
-        Find internships, jobs, and fellowships near you or across the country
-    </p>
+<div class="hero-section">
+    <h2>Policy <span class="pulse-text">Pulse</span></h2>
+    <p class="hero-tagline">Tracking Opportunities in Government, Policy & Nonprofit Sectors</p>
+</div>
 
+<div style="padding: 0 20px;">
     <!-- Search Mode Selection -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 900px; margin: 0 auto 50px;">
+    <div class="search-cards">
         <!-- LOCAL SEARCH -->
-        <div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 30px; border-radius: 15px; border: 3px solid #2196F3;">
-            <div style="font-size: 3em; margin-bottom: 15px;">📍</div>
-            <h3 style="color: #2196F3; margin-bottom: 15px; font-size: 1.5em;">Search Near You</h3>
-            <p style="color: #666; margin-bottom: 25px;">Find jobs within a specific distance from your location</p>
+        <div class="search-card">
+            <div class="search-card-icon">
+                <div class="icon-pin">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3>Search Near You</h3>
+            <p>Find opportunities within a specific distance from your location</p>
             
             <form method="GET" action="{% url 'job_list' %}">
                 <input type="hidden" name="mode" value="local">
                 
                 <div style="margin-bottom: 15px;">
                     <input type="text" name="zip_code" placeholder="Your Zip Code (e.g., 40503)" required
-                           style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                           class="form-input">
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <select name="max_distance" required
-                            style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                    <select name="max_distance" required class="form-select">
                         <option value="">Select Distance</option>
                         <option value="10">Within 10 miles</option>
                         <option value="25">Within 25 miles</option>
@@ -61,21 +573,32 @@
                     </select>
                 </div>
                 
-                <button type="submit" class="btn" style="width: 100%;">
+                <button type="submit" class="btn-primary">
                     Find Local Jobs
                 </button>
             </form>
         </div>
 
         <!-- NATIONWIDE SEARCH -->
-        <div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 30px; border-radius: 15px; border: 3px solid #1976D2;">
-            <div style="font-size: 3em; margin-bottom: 15px;">🇺🇸</div>
-            <h3 style="color: #1976D2; margin-bottom: 15px; font-size: 1.5em;">Search Nationwide</h3>
-            <p style="color: #666; margin-bottom: 80px;">Browse all jobs across the United States</p>
+        <div class="search-card">
+            <div class="search-card-icon">
+                <div class="icon-flag">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3>Search Nationwide</h3>
+            <p>Browse all opportunities across the United States</p>
+            <div style="height: 130px; display: flex; align-items: center; justify-content: center;">
+                <p style="margin: 0; color: var(--gray-600); font-size: 1.05em; font-weight: 500;">
+                    Explore federal positions from coast to coast
+                </p>
+            </div>
             
             <form method="GET" action="{% url 'job_list' %}">
                 <input type="hidden" name="mode" value="nationwide">
-                <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);">
+                <button type="submit" class="btn-secondary">
                     Browse All Jobs
                 </button>
             </form>
@@ -83,64 +606,96 @@
     </div>
 
     <!-- Additional Options -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px;">
-        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
-            <div style="font-size: 3em; margin-bottom: 15px;">💼</div>
-            <h3 style="color: #2196F3; margin-bottom: 10px;">{{ total_jobs }} Open Positions</h3>
-            <p style="color: #666; margin-bottom: 20px;">Active internships, jobs, and fellowships</p>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon-container">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                    <path d="M20 7h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 4h4v3h-4V4zm10 16H4V9h16v11z" fill="var(--uk-blue)"/>
+                    <circle cx="12" cy="15" r="2" fill="var(--pulse-blue)"/>
+                </svg>
+            </div>
+            <h3>{{ total_jobs }} Open Positions</h3>
+            <p>Active internships, jobs, and fellowships waiting for qualified candidates</p>
         </div>
 
-        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
-            <div style="font-size: 3em; margin-bottom: 15px;">📧</div>
-            <h3 style="color: #2196F3; margin-bottom: 10px;">Get Email Alerts</h3>
-            <p style="color: #666; margin-bottom: 20px;">Subscribe to receive new job notifications</p>
-            <a href="{% url 'subscribe' %}" class="btn">Subscribe Now</a>
+        <div class="stat-card" style="border-left-color: var(--pulse-blue);">
+            <div class="stat-icon-container">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="var(--uk-blue)"/>
+                </svg>
+            </div>
+            <h3>Get Email Alerts</h3>
+            <p>Subscribe to receive personalized job notifications based on your preferences</p>
+            <a href="{% url 'subscribe' %}" class="btn-secondary" style="width: auto; padding: 14px 28px; display: inline-block;">
+                Subscribe Now
+            </a>
         </div>
 
-        <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px solid #e9ecef;">
-            <div class="scraper-heart" id="scraperHeart">💙</div>
-            <h3 style="color: #2196F3; margin-bottom: 10px;">Update Jobs Database</h3>
-            <p style="color: #666; margin-bottom: 20px;">Manually scrape for new job postings</p>
+        <div class="stat-card" style="border-left-color: var(--accent);">
+            <div class="pulse-heart-container" id="pulseContainer">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-core">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3>Update Database</h3>
+            <p>Manually trigger scraper to fetch the latest job postings</p>
             <form method="POST" action="{% url 'trigger_scrape' %}" id="scraperForm">
                 {% csrf_token %}
-                <button type="submit" class="btn">Run Scraper</button>
+                <button type="submit" class="btn-primary">
+                    Run Scraper
+                </button>
             </form>
         </div>
     </div>
 
     <!-- Recent Activity -->
-    <div style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); border-radius: 15px;">
-        <h3 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">Recent Scraping Activity</h3>
+    <div class="activity-section">
+        <h3>Recent Scraping Activity</h3>
         {% if recent_logs %}
-            <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
             {% for log in recent_logs %}
-                <div style="background: white; padding: 20px; border-radius: 10px; text-align: left; border-left: 4px solid {% if log.status == 'completed' %}#28a745{% elif log.status == 'failed' %}#dc3545{% else %}#ffc107{% endif %};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div class="activity-log {{ log.status }}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <div>
-                            <strong style="color: #333;">{{ log.started_at|date:"M d, Y H:i" }}</strong>
-                            <span style="color: #666; margin-left: 15px;">
-                                Found: {{ log.jobs_found }} | Added: {{ log.jobs_added }} | Updated: {{ log.jobs_updated }}
+                            <strong style="color: var(--gray-900); font-size: 1.05em; font-weight: 600;">
+                                {{ log.started_at|date:"M d, Y H:i" }}
+                            </strong>
+                            <span style="color: var(--gray-600); margin-left: 25px; display: inline-block; font-weight: 500;">
+                                Found: <strong style="color: var(--uk-blue);">{{ log.jobs_found }}</strong> | 
+                                Added: <strong style="color: var(--success);">{{ log.jobs_added }}</strong> | 
+                                Updated: <strong style="color: var(--pulse-blue);">{{ log.jobs_updated }}</strong>
                             </span>
                         </div>
-                        <span style="padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: 600;
-                            {% if log.status == 'completed' %}background: #d4edda; color: #155724;
-                            {% elif log.status == 'failed' %}background: #f8d7da; color: #721c24;
-                            {% else %}background: #fff3cd; color: #856404;{% endif %}">
-                            {{ log.status|title }}
+                        <span class="status-badge {{ log.status }}">
+                            {{ log.status }}
                         </span>
                     </div>
                 </div>
             {% endfor %}
             </div>
         {% else %}
-            <p style="color: #666;">No scraping activity yet. Click "Run Scraper" to get started!</p>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                        <path d="M7 12h10v2H7zm0-3h10v2H7z"/>
+                    </svg>
+                </div>
+                <p style="font-size: 1.15em; font-weight: 500;">No scraping activity yet. Click "Run Scraper" above to get started!</p>
+            </div>
         {% endif %}
     </div>
 </div>
 
 <script>
     document.getElementById('scraperForm').addEventListener('submit', function() {
-        document.getElementById('scraperHeart').classList.add('pulsing');
+        const container = document.getElementById('pulseContainer');
+        container.classList.add('pulsing');
     });
 </script>
 {% endblock %}

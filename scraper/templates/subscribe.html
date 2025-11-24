@@ -1,128 +1,308 @@
 {% extends 'base.html' %}
 
-{% block title %}Subscribe - Job Scraper{% endblock %}
+{% block title %}Subscribe - Policy Pulse{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h2 style="font-size: 2.5em; margin-bottom: 20px; color: #333; text-align: center;">?? Get Job Alerts</h2>
-    <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1em;">
-        Subscribe to receive email notifications when new jobs matching your preferences are posted.
-    </p>
+<style>
+    :root {
+        --uk-blue: #0033A0;
+        --uk-blue-dark: #002264;
+        --uk-blue-light: #0051D5;
+        --pulse-blue: #00A9E0;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-600: #475569;
+        --gray-900: #0f172a;
+    }
 
-    <div style="background: #f8f9fa; padding: 40px; border-radius: 15px; border: 2px solid #e9ecef;">
+    .subscribe-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .subscribe-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .subscribe-header h2 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        color: var(--uk-blue-dark);
+        font-weight: 700;
+    }
+
+    .subscribe-header p {
+        color: var(--gray-600);
+        font-size: 1.15em;
+        line-height: 1.6;
+    }
+
+    .subscribe-form {
+        background: white;
+        padding: 45px;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0, 51, 160, 0.08);
+        border: 2px solid var(--gray-200);
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--gray-900);
+        font-size: 1.1em;
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: var(--gray-50);
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--uk-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+
+    .checkbox-label:hover {
+        background: var(--gray-50);
+        border-color: var(--uk-blue-light);
+    }
+
+    .checkbox-label input {
+        margin-right: 12px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--uk-blue);
+    }
+
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .form-help {
+        color: var(--gray-600);
+        font-size: 0.9em;
+        margin-top: 8px;
+        font-style: italic;
+    }
+
+    .location-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .btn-subscribe {
+        width: 100%;
+        padding: 18px 32px;
+        background: linear-gradient(135deg, var(--uk-blue) 0%, var(--uk-blue-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2em;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 51, 160, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-subscribe::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-subscribe:hover::before {
+        left: 100%;
+    }
+
+    .btn-subscribe:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 51, 160, 0.4);
+    }
+
+    .benefits-box {
+        margin-top: 40px;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(0, 51, 160, 0.03) 0%, rgba(0, 51, 160, 0.06) 100%);
+        border-radius: 24px;
+        border: 2px solid var(--gray-200);
+    }
+
+    .benefits-box h3 {
+        color: var(--uk-blue-dark);
+        margin-bottom: 25px;
+        font-size: 1.8em;
+        font-weight: 700;
+    }
+
+    .benefits-list {
+        list-style: none;
+        padding-left: 0;
+        color: var(--gray-600);
+        line-height: 2.2;
+    }
+
+    .benefits-list li {
+        padding-left: 35px;
+        position: relative;
+        margin-bottom: 12px;
+        font-size: 1.05em;
+    }
+
+    .benefits-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--uk-blue);
+        font-weight: bold;
+        font-size: 1.4em;
+    }
+
+    @media (max-width: 768px) {
+        .checkbox-grid, .location-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="subscribe-container">
+    <div class="subscribe-header">
+        <h2>Get Job Alerts</h2>
+        <p>Subscribe to receive email notifications when new jobs matching your preferences are posted.</p>
+    </div>
+
+    <div class="subscribe-form">
         <form method="POST" action="{% url 'subscribe' %}">
             {% csrf_token %}
             
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 1.1em;">
-                    Email Address *
-                </label>
+            <div class="form-group">
+                <label class="form-label">Email Address *</label>
                 <input type="email" name="email" required 
                        placeholder="your.email@example.com"
-                       style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
+                       class="form-input">
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 1.1em;">
-                    Job Types (Optional)
-                </label>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="job_types" value="internship" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Internships</span>
+            <div class="form-group">
+                <label class="form-label">Job Types (Optional)</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="job_types" value="internship">
+                        <span>Internships</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="job_types" value="job" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Full-Time Jobs</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="job_types" value="job">
+                        <span>Full-Time Jobs</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="job_types" value="fellowship" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Fellowships</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="job_types" value="fellowship">
+                        <span>Fellowships</span>
                     </label>
                 </div>
-                <p style="color: #666; font-size: 0.9em; margin-top: 8px;">Leave empty to receive alerts for all job types</p>
+                <p class="form-help">Leave empty to receive alerts for all job types</p>
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 1.1em;">
-                    Sectors (Optional)
-                </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Technology" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Technology</span>
+            <div class="form-group">
+                <label class="form-label">Sectors (Optional)</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Technology">
+                        <span>Technology</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Government" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Government</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Government">
+                        <span>Government</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Healthcare" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Healthcare</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Healthcare">
+                        <span>Healthcare</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Finance" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Finance</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Finance">
+                        <span>Finance</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Education" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Education</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Education">
+                        <span>Education</span>
                     </label>
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="sectors" value="Science" 
-                               style="margin-right: 10px; width: 20px; height: 20px;">
-                        <span style="font-size: 1em;">Science</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sectors" value="Science">
+                        <span>Science</span>
                     </label>
                 </div>
-                <p style="color: #666; font-size: 0.9em; margin-top: 8px;">Leave empty to receive alerts for all sectors</p>
+                <p class="form-help">Leave empty to receive alerts for all sectors</p>
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 1.1em;">
-                    Location Preferences (Optional)
-                </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <input type="text" name="zip_code" placeholder="Your Zip Code"
-                               style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
-                    </div>
-                    <div>
-                        <select name="max_distance"
-                                style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;">
-                            <option value="">Any Distance</option>
-                            <option value="25">Within 25 miles</option>
-                            <option value="50">Within 50 miles</option>
-                            <option value="100">Within 100 miles</option>
-                            <option value="250">Within 250 miles</option>
-                        </select>
-                    </div>
+            <div class="form-group">
+                <label class="form-label">Location Preferences (Optional)</label>
+                <div class="location-grid">
+                    <input type="text" name="zip_code" placeholder="Your Zip Code" class="form-input">
+                    <select name="max_distance" class="form-select">
+                        <option value="">Any Distance</option>
+                        <option value="25">Within 25 miles</option>
+                        <option value="50">Within 50 miles</option>
+                        <option value="100">Within 100 miles</option>
+                        <option value="250">Within 250 miles</option>
+                    </select>
                 </div>
-                <p style="color: #666; font-size: 0.9em; margin-top: 8px;">Leave empty to receive alerts for all locations</p>
+                <p class="form-help">Leave empty to receive alerts for all locations</p>
             </div>
 
-            <button type="submit" class="btn" style="width: 100%; padding: 15px; font-size: 1.1em;">
-                Subscribe to Alerts ??
+            <button type="submit" class="btn-subscribe">
+                Subscribe to Alerts
             </button>
         </form>
     </div>
 
-    <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); border-radius: 15px;">
-        <h3 style="color: #333; margin-bottom: 15px;">? What You'll Get:</h3>
-        <ul style="color: #666; line-height: 2; list-style: none; padding-left: 0;">
-            <li>? Instant email notifications for new job postings</li>
-            <li>? Customized alerts based on your preferences</li>
-            <li>? Distance-based filtering option</li>
-            <li>? Direct links to apply immediately</li>
-            <li>? Detailed job information and requirements</li>
-            <li>? Free forever - no hidden fees</li>
+    <div class="benefits-box">
+        <h3>What You'll Get:</h3>
+        <ul class="benefits-list">
+            <li>Instant email notifications for new job postings</li>
+            <li>Customized alerts based on your preferences</li>
+            <li>Distance-based filtering option</li>
+            <li>Direct links to apply immediately</li>
+            <li>Detailed job information and requirements</li>
+            <li>Free forever - no hidden fees</li>
         </ul>
     </div>
 </div>

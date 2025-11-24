@@ -1,62 +1,299 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ job.title }} - Job Scraper{% endblock %}
+{% block title %}{{ job.title }} - Policy Pulse{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'job_list' %}" style="color: #2196F3; text-decoration: none; font-weight: 600;">
-        ? Back to Job Listings
-    </a>
-</div>
+<style>
+    :root {
+        --uk-blue: #0033A0;
+        --uk-blue-dark: #002264;
+        --uk-blue-light: #0051D5;
+        --pulse-blue: #00A9E0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-600: #475569;
+        --gray-900: #0f172a;
+    }
 
-<div style="background: linear-gradient(135deg, #2196F315 0%, #1976D215 100%); padding: 40px; border-radius: 15px; margin-bottom: 30px;">
-    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; flex-wrap: wrap;">
+    .back-link {
+        display: inline-block;
+        margin-bottom: 25px;
+        color: var(--uk-blue);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1em;
+        transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: var(--uk-blue-light);
+    }
+
+    .job-hero {
+        background: linear-gradient(135deg, rgba(0, 51, 160, 0.03) 0%, rgba(0, 51, 160, 0.06) 100%);
+        padding: 45px;
+        border-radius: 24px;
+        margin-bottom: 30px;
+        border: 2px solid var(--gray-200);
+    }
+
+    .job-hero-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .job-hero h1 {
+        color: var(--uk-blue-dark);
+        font-size: 2.8em;
+        margin-bottom: 12px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .job-organization {
+        font-size: 1.4em;
+        color: var(--uk-blue);
+        font-weight: 700;
+    }
+
+    .badge {
+        padding: 10px 22px;
+        border-radius: 25px;
+        font-weight: 700;
+        text-transform: capitalize;
+        font-size: 1em;
+    }
+
+    .badge-type {
+        background: var(--uk-blue);
+        color: white;
+    }
+
+    .badge-closed {
+        background: var(--danger);
+        color: white;
+    }
+
+    .job-badges {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .job-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .meta-item strong {
+        color: var(--gray-900);
+        display: block;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+        font-weight: 700;
+    }
+
+    .meta-item p {
+        color: var(--gray-600);
+        font-size: 1.05em;
+        line-height: 1.6;
+    }
+
+    .section-card {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        border: 2px solid var(--gray-200);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-card h2 {
+        color: var(--uk-blue-dark);
+        margin-bottom: 25px;
+        font-size: 2em;
+        font-weight: 700;
+    }
+
+    .skills-category {
+        margin-bottom: 25px;
+    }
+
+    .skills-category:last-child {
+        margin-bottom: 0;
+    }
+
+    .skills-category h3 {
+        color: var(--uk-blue);
+        margin-bottom: 12px;
+        font-size: 1.3em;
+        font-weight: 700;
+    }
+
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .skill-tag {
+        padding: 10px 18px;
+        background: var(--gray-50);
+        color: var(--gray-600);
+        border-radius: 20px;
+        border: 2px solid var(--gray-200);
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .skill-tag:hover {
+        background: var(--uk-blue);
+        color: white;
+        border-color: var(--uk-blue);
+        transform: translateY(-2px);
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 20px;
+    }
+
+    .info-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        background: var(--gray-50);
+        border-radius: 12px;
+        border-left: 4px solid var(--uk-blue);
+    }
+
+    .info-item strong {
+        color: var(--gray-900);
+        font-weight: 700;
+        min-width: 180px;
+    }
+
+    .info-item span, .info-item a {
+        color: var(--gray-600);
+    }
+
+    .info-item a {
+        color: var(--uk-blue);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .info-item a:hover {
+        color: var(--uk-blue-light);
+        text-decoration: underline;
+    }
+
+    .apply-section {
+        text-align: center;
+        padding: 50px 40px;
+        background: linear-gradient(135deg, rgba(0, 51, 160, 0.03) 0%, rgba(0, 51, 160, 0.06) 100%);
+        border-radius: 24px;
+        border: 2px solid var(--gray-200);
+    }
+
+    .btn-apply-large {
+        padding: 18px 50px;
+        background: linear-gradient(135deg, var(--uk-blue) 0%, var(--uk-blue-light) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-size: 1.3em;
+        font-weight: 700;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 51, 160, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-apply-large::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-apply-large:hover::before {
+        left: 100%;
+    }
+
+    .btn-apply-large:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 51, 160, 0.4);
+        color: white;
+    }
+</style>
+
+<a href="{% url 'job_list' %}" class="back-link">
+    ← Back to Job Listings
+</a>
+
+<div class="job-hero">
+    <div class="job-hero-header">
         <div>
-            <h1 style="color: #333; font-size: 2.5em; margin-bottom: 10px;">{{ job.title }}</h1>
-            <p style="font-size: 1.3em; color: #2196F3; font-weight: 600;">{{ job.organization }}</p>
+            <h1>{{ job.title }}</h1>
+            <p class="job-organization">{{ job.organization }}</p>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <span style="padding: 8px 20px; background: #2196F3; color: white; border-radius: 25px; font-weight: 600;">
+        <div class="job-badges">
+            <span class="badge badge-type">
                 {{ job.job_type|title }}
             </span>
             {% if job.closed %}
-            <span style="padding: 8px 20px; background: #dc3545; color: white; border-radius: 25px; font-weight: 600;">
+            <span class="badge badge-closed">
                 Closed
             </span>
             {% endif %}
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
-        <div>
-            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Locations:</strong>
-            <p style="color: #666;">{{ job.locations|join:", " }}</p>
+    <div class="job-meta-grid">
+        <div class="meta-item">
+            <strong>📍 Locations:</strong>
+            <p>{{ job.locations|join:", " }}</p>
         </div>
-        <div>
-            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Work Format:</strong>
-            <p style="color: #666;">{{ job.work_format|join:", "|title }}</p>
+        <div class="meta-item">
+            <strong>💼 Work Format:</strong>
+            <p>{{ job.work_format|join:", "|title }}</p>
         </div>
-        <div>
-            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Sectors:</strong>
-            <p style="color: #666;">{{ job.sectors|join:", " }}</p>
+        <div class="meta-item">
+            <strong>🏢 Sectors:</strong>
+            <p>{{ job.sectors|join:", " }}</p>
         </div>
-        <div>
-            <strong style="color: #333; display: block; margin-bottom: 8px;">?? Posted:</strong>
-            <p style="color: #666;">{{ job.date_scraped|date:"M d, Y" }}</p>
+        <div class="meta-item">
+            <strong>📅 Posted:</strong>
+            <p>{{ job.date_scraped|date:"M d, Y" }}</p>
         </div>
     </div>
 </div>
 
-<!-- Technical Skills -->
 {% if job.technical_skills %}
-<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
-    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Technical Skills Required</h2>
+<div class="section-card">
+    <h2>Technical Skills Required</h2>
     {% for category, skills in job.technical_skills.items %}
-    <div style="margin-bottom: 20px;">
-        <h3 style="color: #2196F3; margin-bottom: 10px; font-size: 1.2em;">{{ category }}</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <div class="skills-category">
+        <h3>{{ category }}</h3>
+        <div class="skills-container">
             {% for skill in skills %}
-            <span style="padding: 8px 16px; background: #f8f9fa; color: #495057; border-radius: 20px; border: 2px solid #e9ecef; font-weight: 600;">
+            <span class="skill-tag">
                 {{ skill }}
             </span>
             {% endfor %}
@@ -66,13 +303,12 @@
 </div>
 {% endif %}
 
-<!-- Soft Skills -->
 {% if job.soft_skills %}
-<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
-    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Soft Skills</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<div class="section-card">
+    <h2>Soft Skills</h2>
+    <div class="skills-container">
         {% for skill in job.soft_skills %}
-        <span style="padding: 8px 16px; background: #f8f9fa; color: #495057; border-radius: 20px; border: 2px solid #e9ecef; font-weight: 600;">
+        <span class="skill-tag">
             {{ skill }}
         </span>
         {% endfor %}
@@ -80,41 +316,39 @@
 </div>
 {% endif %}
 
-<!-- Additional Info -->
-<div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #e9ecef;">
-    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.8em;">?? Additional Information</h2>
-    <div style="display: grid; gap: 15px;">
+<div class="section-card">
+    <h2>Additional Information</h2>
+    <div class="info-grid">
         {% if job.company_link %}
-        <div>
-            <strong style="color: #333;">Company Website:</strong>
-            <a href="http://{{ job.company_link }}" target="_blank" style="color: #2196F3; margin-left: 10px;">
+        <div class="info-item">
+            <strong>Company Website:</strong>
+            <a href="http://{{ job.company_link }}" target="_blank">
                 {{ job.company_link }}
             </a>
         </div>
         {% endif %}
-        <div>
-            <strong style="color: #333;">Source:</strong>
-            <span style="color: #666; margin-left: 10px;">{{ job.source_domain }}</span>
+        <div class="info-item">
+            <strong>Source:</strong>
+            <span>{{ job.source_domain }}</span>
         </div>
         {% if job.posting_date %}
-        <div>
-            <strong style="color: #333;">Original Posting Date:</strong>
-            <span style="color: #666; margin-left: 10px;">{{ job.posting_date }}</span>
+        <div class="info-item">
+            <strong>Original Posting Date:</strong>
+            <span>{{ job.posting_date }}</span>
         </div>
         {% endif %}
         {% if job.sponsorship_required %}
-        <div>
-            <strong style="color: #333;">Sponsorship:</strong>
-            <span style="color: #666; margin-left: 10px;">Required</span>
+        <div class="info-item">
+            <strong>Sponsorship:</strong>
+            <span>Required</span>
         </div>
         {% endif %}
     </div>
 </div>
 
-<!-- Apply Button -->
-<div style="text-align: center; padding: 40px;">
-    <a href="{{ job.apply_link }}" target="_blank" class="btn" style="font-size: 1.2em; padding: 15px 50px;">
-        Apply Now on {{ job.source_domain }} ?
+<div class="apply-section">
+    <a href="{{ job.apply_link }}" target="_blank" class="btn-apply-large">
+        Apply Now on {{ job.source_domain }}
     </a>
 </div>
 {% endblock %}
